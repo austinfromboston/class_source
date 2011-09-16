@@ -16,7 +16,7 @@ describe ClassSource do
     end
 
     it "can pinpoint the opening of a simple class" do
-      SimpleClass.source_location.should == ["#{PROBE_PATH}/fixtures/simple_class.rb", 3]
+      SimpleClass.source_locations.should == [["#{PROBE_PATH}/fixtures/simple_class.rb", 3]]
     end
 
     it "can return the full source of a simple class" do
@@ -42,7 +42,7 @@ describe ClassSource do
     end
 
     it "can pinpoint the opening" do
-      ProtectedMethodClass.source_location.should == [fixtures_path(:protected_method_class), 1]
+      ProtectedMethodClass.source_locations.should == [[fixtures_path(:protected_method_class), 1]]
     end
 
     it "can return the full source" do
@@ -65,7 +65,7 @@ describe ClassSource do
     end
 
     it "can pinpoint the opening" do
-      SubClass.source_location.should == [fixtures_path(:sub_class), 1]
+      SubClass.source_locations.should == [[fixtures_path(:sub_class), 1]]
     end
 
     it "can return the full source" do
@@ -97,6 +97,11 @@ describe ClassSource do
     before do
       test_load 'DynamicClass'
     end
+
+    it "should have a single source location" do
+      DynamicClass.should have(1).source_locations
+    end
+
     it "can return the full source" do
       DynamicClass.source.should == File.read(fixtures_path(:dynamic_class)).lines.to_a[0..4].join("")
     end
@@ -115,10 +120,44 @@ describe ClassSource do
 
 
   end
-  describe "for duplicated classes"
-  describe "for classes defined within eval"
-  describe "for classes that are reopened in separate files"
-  describe "for a nested class that is reopened within the parent"
+  describe "for duplicated classes" do
+    it "--"
+  end
+  describe "for classes defined within eval" do 
+    it "--"
+  end 
+
+  describe "for classes that are reopened in separate files" do
+    before { test_load 'ReOpenedClass' }
+    it "should have more than one source file" do
+      ReOpenedClass.source_files.length.should == 2
+    end
+
+    it "should have more than one source location" do
+      ReOpenedClass.source_locations.length.should == 2
+    end
+
+    it "should have the full source in its source" do
+      ReOpenedClass.sources.should == {
+        [fixtures_path(:re_opened_class), 3] => File.read(fixtures_path(:re_opened_class)).lines.to_a[2..-1].join(""), 
+        [fixtures_path(:re_opened_class_2), 1] => File.read(fixtures_path(:re_opened_class_2))
+      }
+    end
+
+    it "should be able to display without nested classes if needed" do
+      reopened_source = File.read(fixtures_path(:re_opened_class)).lines.to_a
+      reopened_source_2 = File.read(fixtures_path(:re_opened_class_2)).lines.to_a
+      ReOpenedClass.sources(:include_nested => false).should == {
+        [fixtures_path(:re_opened_class), 3] => (reopened_source[2..6] + reopened_source[9..-1]).join(""),
+        [fixtures_path(:re_opened_class_2), 1] => (reopened_source_2[0..4] + reopened_source_2[8..-1]).join("")
+      }
+    end
+  end
+
+  describe "for a nested class that is reopened within the parent" do 
+    it "--"
+  end
+
   describe "for class with only class methods" do
     before do
       test_load 'ClassMethodsClass'

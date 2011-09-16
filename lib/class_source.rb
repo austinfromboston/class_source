@@ -3,7 +3,34 @@ require 'tempfile'
 require 'yaml'
 
 module ClassSource
-  def source_location
+  def source(options = {})
+    return if sources.empty?
+    full_source = sources.values.join("")
+    return full_source unless options[:include_nested] == false
+
+    full_source.lines.to_a.select.with_index do |line, index|
+      nested_class_line_ranges.all? { |range| !range.include?(index) }
+    end.join("")
+  end
+
+  def sources(options = {})
+    full_sources = source_locations.inject({}) do |results, location|
+      results[ location ] = MethodSource.source_helper(location)
+      results
+    end
+
+    return full_sources unless options[:include_nested] == false
+    full_sources.sort_by { |location, source| $LOADED_FILES.index_of?(location.first) }.each do |location, source|
+      next unless nested_class_line_ranges[location.first]
+      full_sources[location] = source.lines.to_a.select.with_index do |line, index|
+        nested_class_line_ranges[location.first].all? { |range| !range.include?(index) }
+      end.join("")
+    end
+  end
+
+
+  def source_locations
+    return @locations if @locations
     @locations = []
     t = Tempfile.new('class_creation_events')
     fork do
@@ -20,10 +47,10 @@ module ClassSource
       YAML.dump(@locations, t)
     end
     Process.wait
-    @locations = YAML.load_file(t.path)
+    @locations = YAML.load_file(t.path).uniq
     t.close
     guess_source_location if @locations.empty?
-    @locations.first
+    @locations
   end
 
   def guess_source_location
@@ -42,7 +69,7 @@ module ClassSource
   end
 
   def dynamic_class_def(id, classname, file, line)
-    id == :new && classname == Class && File.read(file).lines.to_a[line-1].match(self.name.split('::').last)
+    id == :new && classname == Class && File.read(file).lines.to_a[line-1].match(/\b#{self.name.split('::').last}\b/)
   end
 
   def standard_class_def(event, binding, target_class)
@@ -98,20 +125,19 @@ module ClassSource
     @source_files ||= method_locations.map(&:first).uniq
   end
 
-  def source(options = {})
-    full_source = MethodSource.source_helper(source_location)
-    return full_source unless options[:include_nested] == false
-
-    full_source.lines.to_a.select.with_index do |line, index|
-      nested_class_line_ranges.all? { |range| !range.include?(index) }
-    end.join("")
-  end
-
   def nested_class_line_ranges
     nested_classes = constants.select { |c| const_get(c).is_a?(Class) }.map {|c| const_get(c) }
-    @nested_class_ranges ||= nested_classes.map do |klass| 
-      (klass.source_location.last-1)..(klass.source_location.last + klass.source.lines.count - 2)
+    return @nested_class_ranges if @nested_class_ranges
+    @nested_class_ranges = {}
+    nested_classes.each do |klass| 
+      # (klass.source_location.last-1)..(klass.source_location.last + klass.source.lines.count - 2)
+      klass.sources.each do |(file, line), source| 
+        @nested_class_ranges[file] ||= []
+        @nested_class_ranges[file] << (line - 1)..(line + source.lines.count - 2)
+      end
     end
+
+    @nested_class_ranges
   end
 
 end
