@@ -131,10 +131,30 @@ describe ClassSource do
   end
 
   describe "for duplicated classes" do
-    it "--"
+    before { test_load 'DuplicatedClass' }
+    it "should point to the duplication point" do
+      DuplicateClass.source_locations.should == [
+        [fixtures_path(:duplicated_class), 5]
+      ]
+    end
   end
+
+  describe "for cloned classes" do
+    before { test_load 'ClonedClass' }
+    it "should point to the cloning point" do
+      CloneClass.source_locations.should == [
+        [fixtures_path(:cloned_class), 5]
+      ]
+    end
+  end
+
   describe "for classes defined within eval" do 
-    it "--"
+    before { test_load 'EvalClass' }
+    it "should point to the evaluation point" do
+      EvalClass.source_locations.should == [
+        [fixtures_path(:eval_class), 11]
+      ]
+    end
   end 
 
   describe "for classes that are reopened in separate files" do
