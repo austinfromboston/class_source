@@ -128,9 +128,8 @@ describe ClassSource do
         MethodlessDynamicClass.source.should == "MethodlessDynamicClass = Class.new\n"
       end
     end
-
-
   end
+
   describe "for duplicated classes" do
     it "--"
   end
@@ -159,14 +158,20 @@ describe ClassSource do
       reopened_source = File.read(fixtures_path(:re_opened_class)).lines.to_a
       reopened_source_2 = File.read(fixtures_path(:re_opened_class_2)).lines.to_a
       ReOpenedClass.sources(:include_nested => false).should == {
-        [fixtures_path(:re_opened_class), 3] => (reopened_source[2..6] + reopened_source[11..-1]).join(""),
+        [fixtures_path(:re_opened_class), 3] => (reopened_source[2..6] + reopened_source[15..-1]).join(""),
         [fixtures_path(:re_opened_class_2), 1] => (reopened_source_2[0..4] + reopened_source_2[10..-1]).join("")
       }
     end
   end
 
   describe "for a nested class that is reopened within the parent" do 
-    it "--"
+    before { test_load 'ReOpenedClass' }
+    it "should have more than one source location" do
+      ReOpenedClass::NestedClass.sources.should == {
+        [fixtures_path(:re_opened_class), 8] => File.read(fixtures_path(:re_opened_class)).lines.to_a[7..10].join(""), 
+        [fixtures_path(:re_opened_class), 12] => File.read(fixtures_path(:re_opened_class)).lines.to_a[11..14].join("") 
+      }
+    end
   end
 
   describe "for class with only class methods" do

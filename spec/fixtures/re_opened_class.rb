@@ -9,4 +9,8 @@ class ReOpenedClass
     def simple_method
     end
   end
+  class NestedClass
+    def simple_method_2
+    end
+  end
 end
