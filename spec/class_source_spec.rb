@@ -8,19 +8,19 @@ describe ClassSource do
       test_load 'SimpleClass'
     end
     it "knows the unique methods of the class" do
-      SimpleClass.unique_methods.should == [:initialize]
+      SimpleClass.__source__.methods.unique.should == [:initialize]
     end
 
     it "knows the method location for each of the unique methods of the class" do
-      SimpleClass.method_locations.should == [[fixtures_path(:simple_class), 4]]
+      SimpleClass.__source__.methods.locations.should == [[fixtures_path(:simple_class), 4]]
     end
 
     it "can pinpoint the opening of a simple class" do
-      SimpleClass.source_locations.should == [["#{PROBE_PATH}/fixtures/simple_class.rb", 3]]
+      SimpleClass.__source__.locations.should == [["#{PROBE_PATH}/fixtures/simple_class.rb", 3]]
     end
 
     it "can return the full source of a simple class" do
-      SimpleClass.source.should == File.read(fixtures_path(:simple_class)).lines.to_a[2..-1].join("")
+      SimpleClass.__source__.to_s.should == File.read(fixtures_path(:simple_class)).lines.to_a[2..-1].join("")
     end
   end
 
