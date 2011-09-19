@@ -22,7 +22,6 @@ describe ClassSource do
     it "can return the full source of a simple class" do
       SimpleClass.source.should == File.read(fixtures_path(:simple_class)).lines.to_a[2..-1].join("")
     end
-
   end
 
   describe "for a class with public, private and protected methods" do
@@ -80,6 +79,18 @@ describe ClassSource do
     end
   end
 
+  describe "for a class with no unique methods" do
+    before { test_load 'NoMethodsClass' }
+    it "can return the full source if you pass a source file" do
+      NoMethodsClass.source(:file => fixtures_path(:no_methods_class)).should == File.read(fixtures_path(:no_methods_class)).lines.to_a[0..4].join("")
+    end
+    describe "for a nested class with no unique methods" do
+      it "can return the full source" do
+        NoMethodsClass::NestedClass.source(:file => fixtures_path(:no_methods_class)).should == File.read(fixtures_path(:no_methods_class)).lines.to_a[1..3].join("")
+      end
+    end
+  end
+
   describe "for an outer class" do
     before { test_load 'OuterClass' }
     it "can return the full source" do
@@ -112,9 +123,9 @@ describe ClassSource do
     end
 
     describe "with no methods" do
-      it "returns nil" do
+      it "knows the source" do
         MethodlessDynamicClass.send :extend, ClassSource
-        MethodlessDynamicClass.source.should be_nil
+        MethodlessDynamicClass.source.should == "MethodlessDynamicClass = Class.new\n"
       end
     end
 
@@ -148,8 +159,8 @@ describe ClassSource do
       reopened_source = File.read(fixtures_path(:re_opened_class)).lines.to_a
       reopened_source_2 = File.read(fixtures_path(:re_opened_class_2)).lines.to_a
       ReOpenedClass.sources(:include_nested => false).should == {
-        [fixtures_path(:re_opened_class), 3] => (reopened_source[2..6] + reopened_source[9..-1]).join(""),
-        [fixtures_path(:re_opened_class_2), 1] => (reopened_source_2[0..4] + reopened_source_2[8..-1]).join("")
+        [fixtures_path(:re_opened_class), 3] => (reopened_source[2..6] + reopened_source[11..-1]).join(""),
+        [fixtures_path(:re_opened_class_2), 1] => (reopened_source_2[0..4] + reopened_source_2[10..-1]).join("")
       }
     end
   end
