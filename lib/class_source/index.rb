@@ -1,19 +1,44 @@
 module ClassSource
   class Index
-    def initialize(target_class)
+    def initialize(target_class, options = {})
       @target_class = target_class
+      @options = options
     end
 
     def methods
       @method_details ||= MethodIndex.new(@target_class)
     end
 
-    def locations
-      @target_class.source_locations
+    def class_methods
+      methods.klass
     end
 
-    def to_s
-      @target_class.source
+    def locations(options={})
+      locator.to_hash
+    end
+
+    def locator
+      @locator ||= Locator.new(@target_class, @options)
+    end
+
+    def files
+      locator.files
+    end
+
+    def options
+
+    end
+
+    def to_s(options={})
+      all(options).values.join("")
+    end
+
+    def ==(value)
+      to_s == value
+    end
+
+    def all(options={})
+      @collator ||= Collator.new(@target_class, self).to_hash(options)
     end
 
   end
