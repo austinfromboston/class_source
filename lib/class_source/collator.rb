@@ -33,7 +33,7 @@ module ClassSource
       @nested_class_ranges = {}
       nested_classes.each do |klass| 
         # (klass.source_location.last-1)..(klass.source_location.last + klass.source.lines.count - 2)
-        klass.sources.each do |(file, line), source| 
+        klass.__source__.all.each do |(file, line), source| 
           @nested_class_ranges[file] ||= []
           @nested_class_ranges[file] << ((line - 1)..(line + source.lines.count - 2))
         end
