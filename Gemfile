@@ -1,7 +1,3 @@
-source :rubygems
+source "http://rubygems.org"
 
-gem 'ruby_parser'
-
-group :test do
-  gem 'rspec'
-end
+gemspec
