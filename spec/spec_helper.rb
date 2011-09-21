@@ -1,7 +1,6 @@
 require 'rubygems'
-PROBE_PATH=File.expand_path(File.dirname(__FILE__), '../lib')
-$LOAD_PATH << PROBE_PATH
-require 'probe'
+SOURCE_PATH=File.expand_path(File.dirname(__FILE__), '../lib')
+$LOAD_PATH << SOURCE_PATH
 require 'class_source'
 
 RSpec.configure do
@@ -10,7 +9,7 @@ RSpec.configure do
   end
 
   def fixtures_path(file_name)
-    "#{PROBE_PATH}/fixtures/#{file_name}.rb"
+    "#{SOURCE_PATH}/fixtures/#{file_name}.rb"
   end
 
   def test_load(*args)

@@ -1,3 +1,5 @@
+require 'ruby_parser'
+
 module ClassSource
   class Collator
     def initialize(target_class, index)
@@ -7,7 +9,7 @@ module ClassSource
 
     def to_hash(options = {})
       full_sources = @source.locations(options).inject({}) do |results, location|
-        results[ location ] = MethodSource.source_helper(location)
+        results[ location ] = source_helper(location)
         results
       end
 
@@ -44,6 +46,34 @@ module ClassSource
 
     def full_file(location)
       File.read(location.first)
+    end
+
+    # source_helper and valid_expression? are lifted from method_source
+    # (c) 2011 John Mair (banisterfiend)
+    def source_helper(source_location)
+      return nil if !source_location.is_a?(Array)
+
+      file_name, line = source_location
+      File.open(file_name) do |file|
+        (line - 1).times { file.readline }
+
+        code = ""
+        loop do
+          val = file.readline
+          code << val
+
+          return code if valid_expression?(code)
+        end
+      end
+    end
+
+
+    def valid_expression?(code)
+      RubyParser.new.parse(code)
+    rescue Racc::ParseError, SyntaxError
+      false
+    else
+      true
     end
 
   end

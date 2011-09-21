@@ -16,7 +16,7 @@ describe ClassSource do
     end
 
     it "can pinpoint the opening of a simple class" do
-      SimpleClass.__source__.locations.should == [["#{PROBE_PATH}/fixtures/simple_class.rb", 3]]
+      SimpleClass.__source__.locations.should == [[fixtures_path(:simple_class), 3]]
     end
 
     it "can return the full source of a simple class" do

@@ -1,3 +1,6 @@
+require 'tempfile'
+require 'yaml'
+
 module ClassSource
   class Locator
     def initialize(target_class, options={})
