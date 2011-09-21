@@ -5,30 +5,6 @@ module ClassSource
       @options = options
     end
 
-    def methods
-      @method_details ||= MethodIndex.new(@target_class)
-    end
-
-    def class_methods
-      methods.klass
-    end
-
-    def locations(options={})
-      locator.to_hash
-    end
-
-    def locator
-      @locator ||= Locator.new(@target_class, @options)
-    end
-
-    def files
-      locator.files
-    end
-
-    def options
-
-    end
-
     def to_s(options={})
       all(options).values.join("")
     end
@@ -39,6 +15,26 @@ module ClassSource
 
     def all(options={})
       @collator ||= Collator.new(@target_class, self).to_hash(options)
+    end
+
+    def locations(options={})
+      locator.to_a
+    end
+
+    def methods
+      @method_details ||= MethodIndex.new(@target_class)
+    end
+
+    def class_methods
+      methods.klass
+    end
+
+    def locator
+      @locator ||= Locator.new(@target_class, @options)
+    end
+
+    def files
+      locator.files
     end
 
   end

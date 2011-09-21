@@ -8,7 +8,7 @@ module ClassSource
       @options=options
     end
 
-    def to_hash
+    def to_a
       source_locations
     end
 
