@@ -3,7 +3,7 @@ require "class_source/version"
 Gem::Specification.new do |s|
   s.name    = "class_source"
   s.version = ClassSource::VERSION
-  s.authors = ["Austin Putman, austingfromboston"]
+  s.authors = ["Austin Putman, austinfromboston"]
   s.email   = ["austin@rawfingertips.com"]
 
   s.rubyforge_project = "class_source"
