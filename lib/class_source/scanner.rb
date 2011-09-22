@@ -1,10 +1,12 @@
 module ClassSource
-  class Guesser
+  # A helper class for scanning files looking for potential class declarations
+  class Scanner
     def initialize(klass, source_files)
       @source_files = source_files
       @klass = klass
     end
 
+    # @return [Array] An array of [file_name, line_number] tuples where the classes name was detected
     def locations
       return if @source_files.empty?
       @source_files.map do |file|

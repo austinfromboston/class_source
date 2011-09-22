@@ -1,4 +1,5 @@
 module ClassSource
+  # A helper class for tracking class declaration points
   class Declarations
     def self.[](key)
       @declarations ||= {}
