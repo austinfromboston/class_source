@@ -3,3 +3,4 @@ tags
 Gemfile.lock
 *.gem
 doc
+.yardoc
